@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: . com.ti.smartconfig-1.1.jar
+Main-Class: net.betaengine.smartconfig.desktop.Main

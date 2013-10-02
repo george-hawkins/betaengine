@@ -1,0 +1,32 @@
+To build a redistributable zip follow these steps:
+
+$ SUBDIR=net.betaengine.smartconfig-$(date '+%Y-%m-%d')
+$ BASE=$PWD
+$ RESULT=$BASE/$SUBDIR
+$ mkdir $RESULT
+$ cp ../lib/jarjar-1.4.jar $RESULT
+$ cp ../ti-resources/smartConfig.jar $RESULT 
+$ cp resources/* $RESULT 
+$ cd ..
+$ rm -rf bin
+$ mkdir bin
+$ javac -d bin -classpath 'lib/*' $(find src -name '*.java')
+$ cd bin
+$ jar cfm $RESULT/repackage.jar $BASE/manifests/REPACKAGE.mf net/betaengine/jarjar/*.class
+$ jar cfm $RESULT/net.betaengine.smartconfig-ui.jar $BASE/manifests/SMARTCONFIG-UI.mf $(find net/betaengine/smartconfig -type f)
+$ cd ../resources/
+$ jar uf $RESULT/net.betaengine.smartconfig-ui.jar $(find net -type f)
+$ cd $BASE
+$ chmod a+x $RESULT/repackage.jar
+$ chmod a+x $RESULT/net.betaengine.smartconfig-ui.jar
+$ zip -q $SUBDIR.zip -r $SUBDIR
+
+Setting the executable bit on executable jars is only required for certain Linux environments that refuse allow double-clicking such jars if not explicitly marked as executable.
+
+The resources/rules.txt file used to repackage the TI Smart Config library was created like so:
+
+  $ jar -tf smartConfig.jar | sed -n 's/\.class$//p' | egrep -v '[$.]' | \
+        while read line
+        do
+            echo "rule $line** com.ti.smartconfig.@0"
+        done > rules.txt

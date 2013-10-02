@@ -1,0 +1,23 @@
+The TI SmartConfig library was extracted from version 1.1 of SMARTCONFIG-JAVA available here:
+
+  http://www.ti.com/tool/smartconfig
+
+It is covered by the TI Commercial License and the right to redistribute it is established here:
+
+  http://e2e.ti.com/support/low_power_rf/f/851/p/286323/1001377.aspx
+
+dnsjava is covered by the BSD License and is available here:
+
+  http://www.dnsjava.org/download/
+
+Jar Jar Links is covered by the Apache License, Version 2.0 and is available here:
+
+  https://code.google.com/p/jarjar/downloads/list
+
+The net.betaengine code and related resources are also covered by the Apache License, Version 2.0, see:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+The wifi image used by net.betaengine.smartconfig.desktop.ui.DetailsEntry is public domain and came from here:
+
+  http://openclipart.org/detail/17422/wireless/wifi-symbol-by-ispyisail-17422

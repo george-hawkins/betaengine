@@ -1,0 +1,15 @@
+#
+# input.jar = smartConfig.jar
+# output.jar = com.ti.smartconfig-1.1.jar
+#
+rule FirstTimeConfigListener** com.ti.smartconfig.@0
+rule FirstTimeConfig** com.ti.smartconfig.@0
+rule Windows7NetServices** com.ti.smartconfig.@0
+rule SmartConfigOsNetServices** com.ti.smartconfig.@0
+rule LinuxNetServices** com.ti.smartconfig.@0
+rule FtcEncode** com.ti.smartconfig.@0
+rule Ftc20** com.ti.smartconfig.@0
+rule SmartConfigConnectListener** com.ti.smartconfig.@0
+rule SmartConfig** com.ti.smartconfig.@0
+rule VoidOsNetServices** com.ti.smartconfig.@0
+rule SmartConfigOsServicesException** com.ti.smartconfig.@0
