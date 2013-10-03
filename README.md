@@ -20,6 +20,8 @@ The following sequence of commands will build the net.betaengine codebase on Lin
     $ mkdir -p bin
     $ javac -d bin -classpath 'lib/*' $(find src -name '*.java')
 
+The first step repackages the original TI smartConfig.jar file into a useable jar called com.ti.smartconfig-1.1.jar.
+
 Tools
 -----
 
