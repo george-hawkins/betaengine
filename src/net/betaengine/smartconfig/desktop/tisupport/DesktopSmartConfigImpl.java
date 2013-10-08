@@ -74,10 +74,10 @@ public class DesktopSmartConfigImpl implements DesktopSmartConfig
             }
 
             // TI just call getBytes() without a charset in their applet version - a clear problem.
-            // I don't know what the correct charset is but will assume ISO-8859-1 until corrected.
+            // The TI iOS and Android apps use UTF-8 which I will use here until otherwise corrected.
             config = new FirstTimeConfig(
                 wrap(callback),
-                password, aesKey.getBytes(Charsets.ISO_8859_1),
+                password, aesKey.getBytes(Charsets.UTF_8),
                 gateway, networkName, deviceName);
             
             config.setTransmitDataGramSocket(new DatagramSocket());

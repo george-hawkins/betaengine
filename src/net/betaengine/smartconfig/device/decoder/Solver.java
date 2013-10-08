@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
@@ -216,20 +217,45 @@ public class Solver
     {
         System.err.print('[');
         
-        int end = result.size() / 2;
+        int count = result.size() / 2;
+        byte[] data = new byte[count];
         Iterator<Integer> i = result.iterator();
         
-        for (int j = 0; j < end; j++)
+        for (int j = 0; j < count; j++)
         {
             int highNibble = i.next() & 0x0F;
             int lowNibble = i.next() & 0x0F;
             
-            char value = (char)((highNibble << 4) | lowNibble);
-            
-            System.err.print(value);
+            data[j] = (byte)((highNibble << 4) | lowNibble);
         }
         
-        System.err.println(']');
+        // Experimentation shows that the Android and iOS Smart Config apps
+        // send data as UTF-8, while the TI Java applet library just uses the
+        // default character set of the platform that it's running on.
+        String s = new String(data, Charsets.UTF_8);
+
+        System.err.println(escape(s) + ']');
+    }
+    
+    // Replaces any characters that are not printable ISO 8859-1 characters with a Unicode escape.
+    private String escape(String s)
+    {
+        StringBuilder builder = new StringBuilder();
+        char[] chars = s.toCharArray();
+        
+        for (char c : chars)
+        {
+            if ((c >= ' ' && c <= '~') || (c >= '\u00A1' && c <= '\u00FF'))
+            {
+                builder.append(c);
+            }
+            else
+            {
+                builder.append(String.format("\\u%04X", (int)c));
+            }
+        }
+        
+        return builder.toString();
     }
 
     private Set<Integer>[] createSequence(int count)
