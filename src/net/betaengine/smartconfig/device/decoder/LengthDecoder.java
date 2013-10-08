@@ -16,11 +16,7 @@
 package net.betaengine.smartconfig.device.decoder;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
 
 import com.google.common.collect.EvictingQueue;
 
@@ -42,6 +38,7 @@ public class LengthDecoder
     private final static int LEN_MAX = LEN_MIN + MAX_SEQUENCE_LEN;
     
     private final EvictingQueue<Integer> sizes = EvictingQueue.create(MAX_SIZES);
+    
     private final int offset;
     private final Solver ssidSolver = new Solver("SSID");
     private final Solver keyphraseSolver = new Solver("keyphrase");
@@ -87,7 +84,7 @@ public class LengthDecoder
     {
         if (otherSeen)
         {
-            List<Set<Integer>> chunks = getChunks(separator);
+            EncodedData chunks = getChunks(separator);
             
             if (chunks != null)
             {
@@ -96,105 +93,65 @@ public class LengthDecoder
         }
     }
     
-    private List<Set<Integer>> getChunks(int tag)
+    private EncodedData getChunks(int tag)
     {
-        Statistics statistics = new Statistics();
-        List<Integer> list = new ArrayList<>(sizes); // A bit horrible.
-        ListIterator<Integer> i = list.listIterator(list.size());
-        boolean inSeparator = false;
-        boolean foundSeparator = false;
-        LinkedList<Integer> chunk = new LinkedList<>();
-        LinkedList<Set<Integer>> result = new LinkedList<>();
+        List<Integer> sequence = new ArrayList<>();
+        boolean foundTag = false;
+        
+        for (int size : sizes)
+        {
+            if (size == tag)
+            {
+                foundTag = true;
+                // We may find the tag multiple times.
+                // We only want the values from the last instance of tag onwards.
+                sequence.clear();
+            }
+            else if (foundTag)
+            {
+                sequence.add(size);
+            }
+        }
+        
+        if (sequence.isEmpty())
+        {
+            return null;
+        }
+        
+        List<Integer> lengths = new ArrayList<>();
+        List<Integer> data = new ArrayList<>();
+        
         boolean start = true;
         
-        // Important: we work *backwards* towards the opening tag.
-        while (i.hasPrevious())
+        // Clean up the sequence - we want at least one potential length value,
+        // followed by zero or more data values.
+        for (int size : sequence)
         {
-            int size = i.previous();
-            
-            if (inSeparator) // We're in between chunks.
+            if (start && isValidLenValue(size))
             {
-                statistics.analyzeSeparator(size);
+                lengths.add(size - LEN_MIN);
+            }
+            else if (!lengths.isEmpty())
+            {
+                start = false;
                 
-                if (size == SEPARATOR_START)
+                if (isValidDataValue(size))
                 {
-                    inSeparator = false;
-                }
-            }
-            else
-            {
-                if (size == SEPARATOR_END) // We've hit a separator.
-                {
-                    inSeparator = true;
-                    
-                    if (start)
-                    {
-                        start = false;
-                    }
-                    else
-                    {
-                        Set<Integer> dataChunk = getDataChunk(chunk);
-                        
-                        statistics.analyzeChunk(chunk);
-                        
-                        if (!chunk.isEmpty())
-                        {
-                            result.addFirst(dataChunk);
-                        }
-                    }
-                    
-                    chunk.clear();
-                }
-                else if (size == tag) // We've hit the start of the sequence.
-                {
-                    Set<Integer> lenChunk = getLenChunk(chunk);
-                    
-                    if (!lenChunk.isEmpty())
-                    {
-                        result.addFirst(lenChunk);
-                        foundSeparator = true;
-                        break;
-                    }
-                }
-                else
-                {
-                    chunk.addFirst(size);
+                    data.add(size - DATA_MIN);
                 }
             }
         }
         
-        statistics.print(foundSeparator);
-        
-        return foundSeparator ? result : null;
+        return lengths.isEmpty() ? null : new EncodedData(lengths, data);
     }
     
-    private Set<Integer> getLenChunk(LinkedList<Integer> chunk)
+    private boolean isValidLenValue(int len)
     {
-        Set<Integer> result = new HashSet<>();
-        
-        for (int len : chunk)
-        {
-            if (len >= LEN_MIN && len <= LEN_MAX)
-            {
-                result.add(len - LEN_MIN);
-            }
-        }
-        
-        return result;
+        return len >= LEN_MIN && len <= LEN_MAX;
     }
     
-    private Set<Integer> getDataChunk(LinkedList<Integer> chunk)
+    private boolean isValidDataValue(int len)
     {
-        Set<Integer> result = new HashSet<>();
-        
-        for (int len : chunk)
-        {
-            if (len >= DATA_MIN && len <= DATA_MAX)
-            {
-                result.add(len - DATA_MIN);
-            }
-        }
-        
-        return result;
+        return len >= DATA_MIN && len <= DATA_MAX;
     }
 }

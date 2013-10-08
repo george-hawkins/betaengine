@@ -29,8 +29,8 @@ import com.google.common.collect.Multisets;
 
 public class Solver
 {
-    private final List<Set<Integer>> lengths = new ArrayList<>();
-    private final List<List<Set<Integer>>> alternatives = new ArrayList<>();
+    private final Multiset<Integer> lengths = HashMultiset.create();
+    private final List<List<Integer>> alternatives = new ArrayList<>();
     private final String name;
     private boolean solved = false;
     
@@ -38,12 +38,12 @@ public class Solver
 
     public boolean isSolved() { return solved; }
 
-    public void process(List<Set<Integer>> chunks)
+    public void process(EncodedData chunks)
     {
         if (solved) return;
         
-        lengths.add(chunks.get(0));
-        alternatives.add(chunks.subList(1, chunks.size()));
+        lengths.addAll(chunks.getLengths());
+        alternatives.add(chunks.getData());
         
         place();
     }
@@ -60,7 +60,7 @@ public class Solver
         
         Set<Integer>[] sequence = createSequence(nibbleCount);
         
-        for (List<Set<Integer>> chunks : alternatives)
+        for (List<Integer> chunks : alternatives)
         {
             place(nibbleCount, sequence, chunks);
         }
@@ -84,64 +84,52 @@ public class Solver
         }
     }
 
-    private void place(int nibbleCount, Set<Integer>[] sequence, List<Set<Integer>> chunks)
+    private void place(int nibbleCount, Set<Integer>[] sequence, List<Integer> chunks)
     {
         if (chunks.isEmpty())
         {
             return;
         }
         
-        placeFirst(sequence, chunks.get(0), chunks.size() > 1 ? chunks.get(1) : null);
+        placeFirst(sequence, chunks.get(0), chunks.size() > 1 ? chunks.get(1) : -1);
         placeRemainder(nibbleCount, sequence, chunks);
     }
 
-    private void placeFirst(Set<Integer>[] sequence, Set<Integer> firsts, Set<Integer> seconds)
+    private void placeFirst(Set<Integer>[] sequence, int first, int second)
     {
-        for (int first : firsts)
+        if ((first & 0xF0) == 0)
         {
-            if ((first & 0xF0) == 0)
+            sequence[0].add(first);
+        }
+        else if (second != -1)
+        {
+            // Get the index of the *next* element, then subtract 1 to get our index.
+            int index = getIndex(1, second, first);
+            
+            if (index > 0)
             {
-                sequence[0].add(first);
-            }
-            else if (seconds != null)
-            {
-                for (int second : seconds)
-                {
-                    // Get the index of the *next* element, then subtract 1 to get our index.
-                    int index = getIndex(1, second, first);
-                    
-                    if (index > 0)
-                    {
-                        add(sequence, index - 1, first);
-                    }
-                }
+                add(sequence, index - 1, first);
             }
         }
     }
     
-    private void placeRemainder(int nibbleCount, Set<Integer>[] sequence, List<Set<Integer>> chunks)
+    private void placeRemainder(int nibbleCount, Set<Integer>[] sequence, List<Integer> chunks)
     {
-        Iterator<Set<Integer>> i = chunks.iterator();
-        Set<Integer> previousChunk = i.next();
+        Iterator<Integer> i = chunks.iterator();
+        int previous = i.next();
         float factor = nibbleCount / (float)chunks.size();
         int pos = 1;
         
         while (i.hasNext())
         {
-            Set<Integer> currentChunk = i.next();
+            int current = i.next();
             int expectedIndex = Math.round(pos++ * factor);
             
-            for (int current : currentChunk)
-            {
-                for (int previous : previousChunk)
-                {
-                    int index = getIndex(expectedIndex, current, previous);
-                    
-                    add(sequence, index, current);
-                }
-            }
+                int index = getIndex(expectedIndex, current, previous);
+                
+                add(sequence, index, current);
             
-            previousChunk = currentChunk;
+                previous = current;
         }
     }
     
@@ -262,17 +250,7 @@ public class Solver
     // choose the shortest value.
     private int getNibbleCount()
     {
-        Multiset<Integer> allLengths = HashMultiset.create();
-        
-        for (Set<Integer> lengthChunk : lengths)
-        {
-            for (int length : lengthChunk)
-            {
-                allLengths.add(length);
-            }
-        }
-        
-        Iterator<Multiset.Entry<Integer>> i = Multisets.copyHighestCountFirst(allLengths).entrySet().iterator();
+        Iterator<Multiset.Entry<Integer>> i = Multisets.copyHighestCountFirst(lengths).entrySet().iterator();
         Multiset.Entry<Integer> entry = i.next();
         int minLength = entry.getElement();
         int count = entry.getCount();
