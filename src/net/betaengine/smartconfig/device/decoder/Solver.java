@@ -38,12 +38,12 @@ public class Solver
 
     public boolean isSolved() { return solved; }
 
-    public void process(EncodedData chunks)
+    public void process(EncodedData encodedData)
     {
         if (solved) return;
         
-        lengths.addAll(chunks.getLengths());
-        alternatives.add(chunks.getData());
+        lengths.addAll(encodedData.getLengths());
+        alternatives.add(encodedData.getData());
         
         place();
     }
@@ -60,9 +60,9 @@ public class Solver
         
         Set<Integer>[] sequence = createSequence(nibbleCount);
         
-        for (List<Integer> chunks : alternatives)
+        for (List<Integer> data : alternatives)
         {
-            place(nibbleCount, sequence, chunks);
+            place(nibbleCount, sequence, data);
         }
         
         boolean hasHoles = false;
@@ -84,15 +84,15 @@ public class Solver
         }
     }
 
-    private void place(int nibbleCount, Set<Integer>[] sequence, List<Integer> chunks)
+    private void place(int nibbleCount, Set<Integer>[] sequence, List<Integer> data)
     {
-        if (chunks.isEmpty())
+        if (data.isEmpty())
         {
             return;
         }
         
-        placeFirst(sequence, chunks.get(0), chunks.size() > 1 ? chunks.get(1) : -1);
-        placeRemainder(nibbleCount, sequence, chunks);
+        placeFirst(sequence, data.get(0), data.size() > 1 ? data.get(1) : -1);
+        placeRemainder(nibbleCount, sequence, data);
     }
 
     private void placeFirst(Set<Integer>[] sequence, int first, int second)
@@ -113,11 +113,11 @@ public class Solver
         }
     }
     
-    private void placeRemainder(int nibbleCount, Set<Integer>[] sequence, List<Integer> chunks)
+    private void placeRemainder(int nibbleCount, Set<Integer>[] sequence, List<Integer> data)
     {
-        Iterator<Integer> i = chunks.iterator();
+        Iterator<Integer> i = data.iterator();
         int previous = i.next();
-        float factor = nibbleCount / (float)chunks.size();
+        float factor = nibbleCount / (float)data.size();
         int pos = 1;
         
         while (i.hasNext())

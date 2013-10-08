@@ -84,16 +84,16 @@ public class LengthDecoder
     {
         if (otherSeen)
         {
-            EncodedData chunks = getChunks(separator);
+            EncodedData encodedData = getEncodedData(separator);
             
-            if (chunks != null)
+            if (encodedData != null)
             {
-                solver.process(chunks);
+                solver.process(encodedData);
             }
         }
     }
     
-    private EncodedData getChunks(int tag)
+    private EncodedData getEncodedData(int tag)
     {
         List<Integer> sequence = new ArrayList<>();
         boolean foundTag = false;
