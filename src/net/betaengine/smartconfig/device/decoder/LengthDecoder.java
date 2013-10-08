@@ -15,11 +15,14 @@
  */
 package net.betaengine.smartconfig.device.decoder;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+
+import com.google.common.collect.EvictingQueue;
 
 public class LengthDecoder
 {
@@ -38,7 +41,7 @@ public class LengthDecoder
     private final static int MAX_SEQUENCE_LEN = 32;
     private final static int LEN_MAX = LEN_MIN + MAX_SEQUENCE_LEN;
     
-    private final Evictor<Integer> sizes = new Evictor<>(MAX_SIZES);
+    private final EvictingQueue<Integer> sizes = EvictingQueue.create(MAX_SIZES);
     private final int offset;
     private final Solver ssidSolver = new Solver("SSID");
     private final Solver keyphraseSolver = new Solver("keyphrase");
@@ -46,7 +49,7 @@ public class LengthDecoder
     private boolean ssidTagSeen = false;
     private boolean keyphraseTagSeen = false;
     
-    public LengthDecoder(int offset, List<Integer> previousLengths)
+    public LengthDecoder(int offset, Iterable<Integer> previousLengths)
     {
         this.offset = offset;
         
@@ -96,7 +99,7 @@ public class LengthDecoder
     private List<Set<Integer>> getChunks(int tag)
     {
         Statistics statistics = new Statistics();
-        List<Integer> list = sizes.getList();
+        List<Integer> list = new ArrayList<>(sizes); // A bit horrible.
         ListIterator<Integer> i = list.listIterator(list.size());
         boolean inSeparator = false;
         boolean foundSeparator = false;

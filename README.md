@@ -40,3 +40,21 @@ If no device-name is provided then the default name "CC3000" is used.
 ### Smart Config desktop UI
 
     $ java -classpath 'bin:resources:lib/*' net.betaengine.smartconfig.desktop.Main
+
+Decoder
+-------
+
+Running the decoder is a little more complex than the other tools.
+
+It should be run in combination with tshark like so:
+
+    $ tshark -i en0 -I -f 'subtype qos-data' -Y 'wlan.fc.retry==0' -T fields \
+        -e wlan.bssid -e radiotap.channel.freq -e wlan.sa -e wlan.da -e data.len 2> /dev/null \
+        | java -classpath "bin:lib/*" net.betaengine.smartconfig.device.decoder.Consumer
+
+Replace `en0` with the appropriate wifi device reported by:
+
+    $ tshark -D
+
+Note: stderr is redirected to `/dev/null` simply in order to throw away the frame count information that tshark reports.
+It looks like one should be able to disable this output with `-Q` but this does not work with my version of tshark.

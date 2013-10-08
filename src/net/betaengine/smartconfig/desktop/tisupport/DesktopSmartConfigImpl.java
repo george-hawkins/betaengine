@@ -16,18 +16,16 @@
 package net.betaengine.smartconfig.desktop.tisupport;
 
 import java.net.DatagramSocket;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import net.betaengine.smartconfig.desktop.DesktopSmartConfig;
 
+import com.google.common.base.Charsets;
 import com.ti.smartconfig.FirstTimeConfig;
 import com.ti.smartconfig.FirstTimeConfigListener;
 
 public class DesktopSmartConfigImpl implements DesktopSmartConfig
 {
-    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
-    
     // Unusual constants used by TI to indicate no password or AES key.
     // The values are odd, "KEY" for password and "ENC" for AES key, along with inconsistent
     // use of case - "No"/"NO". Many people would have just stuck with using null instead.
@@ -79,7 +77,7 @@ public class DesktopSmartConfigImpl implements DesktopSmartConfig
             // I don't know what the correct charset is but will assume ISO-8859-1 until corrected.
             config = new FirstTimeConfig(
                 wrap(callback),
-                password, aesKey.getBytes(ISO_8859_1),
+                password, aesKey.getBytes(Charsets.ISO_8859_1),
                 gateway, networkName, deviceName);
             
             config.setTransmitDataGramSocket(new DatagramSocket());

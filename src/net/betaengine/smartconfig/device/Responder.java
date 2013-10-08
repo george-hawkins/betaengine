@@ -24,6 +24,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Collections;
 
+import com.google.common.base.Charsets;
+
 public class Responder
 {
     private final static String DEFAULT_DEVICE_NAME = "CC3000"; // Chosen by TI.
@@ -203,9 +205,6 @@ public class Responder
     
     private static class WireFormat
     {
-        // See http://en.wikipedia.org/wiki/Domain_Name_System#Domain_name_syntax
-        // for discussion of DNS character set.
-        private final static Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
         private final ByteBuffer buffer = ByteBuffer.allocate(512);
         
         private int rdataPosition = -1;
@@ -234,7 +233,9 @@ public class Responder
         public void writeString(String s)
         {
             buffer.put((byte)s.length());
-            buffer.put(s.getBytes(ISO_8859_1));
+            buffer.put(s.getBytes(Charsets.ISO_8859_1));
+            // See http://en.wikipedia.org/wiki/Domain_Name_System#Domain_name_syntax
+            // for discussion of DNS character set.
         }
         
         public void writeBytes(byte[] b)

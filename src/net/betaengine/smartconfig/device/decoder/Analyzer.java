@@ -18,6 +18,8 @@ package net.betaengine.smartconfig.device.decoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.EvictingQueue;
+
 public class Analyzer
 {
     private final Map<Link, LinkManager> linkManagers = new HashMap<>();
@@ -43,14 +45,14 @@ public class Analyzer
 
         private final static int MAX_PREVIOUS_LENGTHS = 16; // Might need to be higher for busy n/w.
 
-        private final Evictor<Integer> previousLengths = new Evictor<>(MAX_PREVIOUS_LENGTHS);
+        private final EvictingQueue<Integer> previousLengths = EvictingQueue.create(MAX_PREVIOUS_LENGTHS);
         private final Map<Integer, LengthDecoder> decoders = new HashMap<>();
 
         public boolean add(int length)
         {
             // Look out for packets with data lengths that differ by the same amount
             // as the difference between SEPARATOR_END and SEPARATOR_START.
-            for (int oldLength : previousLengths.getList())
+            for (int oldLength : previousLengths)
             {
                 if (length - oldLength == DIFF)
                 {
@@ -59,7 +61,7 @@ public class Analyzer
 
                     if (!decoders.containsKey(offset))
                     {
-                        decoders.put(offset, new LengthDecoder(offset, previousLengths.getList()));
+                        decoders.put(offset, new LengthDecoder(offset, previousLengths));
                     }
                 }
             }

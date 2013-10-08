@@ -23,6 +23,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multisets;
+
 public class Solver
 {
     private final List<Set<Integer>> lengths = new ArrayList<>();
@@ -253,20 +257,35 @@ public class Solver
         return result;
     }
 
+    // If we've got multiple potential length values we sort them by frequency
+    // and chose the most frequently seen value, if there's a tie we arbitrarily
+    // choose the shortest value.
     private int getNibbleCount()
     {
-        Counter<Integer> counter = new Counter<Integer>();
+        Multiset<Integer> allLengths = HashMultiset.create();
         
         for (Set<Integer> lengthChunk : lengths)
         {
             for (int length : lengthChunk)
             {
-                counter.add(length);
+                allLengths.add(length);
             }
         }
+        
+        Iterator<Multiset.Entry<Integer>> i = Multisets.copyHighestCountFirst(allLengths).entrySet().iterator();
+        Multiset.Entry<Integer> entry = i.next();
+        int minLength = entry.getElement();
+        int count = entry.getCount();
 
-        // Choose the shortest of the lengths that were seen the most times.
-        int minLength = Collections.min(counter.getMaxCountValues());
+        while (i.hasNext())
+        {
+            entry = i.next();
+            if (entry.getCount() < count)
+            {
+                break;
+            }
+            minLength = Math.min(minLength, entry.getElement());
+        }
         
         return minLength * 2;
     }
