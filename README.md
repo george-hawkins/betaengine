@@ -48,7 +48,8 @@ Running the decoder is a little more complex than the other tools.
 
 It should be run in combination with tshark like so:
 
-    $ tshark -i en0 -I -f 'subtype qos-data' -Y 'wlan.fc.retry==0' -T fields \
+    $ tshark -o 'wlan.enable_decryption:FALSE' \
+        -i en0 -I -f 'subtype qos-data' -Y 'wlan.fc.retry==0' -T fields \
         -e wlan.bssid -e radiotap.channel.freq -e wlan.sa -e wlan.da -e data.len 2> /dev/null \
         | java -classpath "bin:lib/*" net.betaengine.smartconfig.device.decoder.Consumer
 
