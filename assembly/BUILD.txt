@@ -5,6 +5,7 @@ $ BASE=$PWD
 $ RESULT=$BASE/$SUBDIR
 $ mkdir $RESULT
 $ cp ../lib/jarjar-1.4.jar $RESULT
+$ cp ../lib/guava-15.0.jar $RESULT
 $ cp ../ti-resources/smartConfig.jar $RESULT 
 $ cp resources/* $RESULT 
 $ cd ..
