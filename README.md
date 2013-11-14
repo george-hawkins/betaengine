@@ -16,7 +16,7 @@ Build
 
 The following sequence of commands will build the net.betaengine codebase on Linux or Mac OS X and should be easy to adapt for Windows.
 
-    $ java -jar lib/jarjar-1.4.jar process assembly/rules.txt ti-resources/smartConfig.jar lib/com.ti.smartconfig-1.1.jar
+    $ java -jar lib/jarjar-1.4.jar process assembly/resources/rules.txt ti-resources/smartConfig.jar lib/com.ti.smartconfig-1.1.jar
     $ mkdir -p bin
     $ javac -d bin -classpath 'lib/*' $(find src -name '*.java')
 
