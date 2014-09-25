@@ -33,7 +33,7 @@ Once you've built the codebase you can run the various tools as follows.
 
 ### Smart Config responder
 
-    $ java -classpath bin net.betaengine.smartconfig.device.Responder <device-name>
+    $ java -classpath 'bin:lib/*' net.betaengine.smartconfig.device.Responder <device-name>
 
 If no device-name is provided then the default name "CC3000" is used.
 
